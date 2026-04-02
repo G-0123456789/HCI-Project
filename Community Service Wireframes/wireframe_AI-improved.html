@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Community Service Delivery — Improved Wireframe</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --bg: #f5f0e8;
+    --card: #fefcf8;
+    --ink: #1a1a18;
+    --ink-soft: #5a5a52;
+    --ink-muted: #9a9a8e;
+    --accent: #2d6a4f;
+    --accent-light: #d8f3dc;
+    --warn: #e76f51;
+    --warn-light: #fde8e2;
+    --border: #c8c2b4;
+    --border-light: #e4dfd4;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --success: #1b7a3e;
+    --success-light: #c3f0d0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 20px 2px 60px;
+  }
+
+  /* ── Header ─────────────────────────────────────── */
+  .page-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .page-header .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 10px;
+  }
+  .page-header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  /* ── Improvement tags ────────────────────────────── */
+  .improvement-strip {
+    max-width: 1300px;
+    margin: 0 auto 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 4px;
+  }
+  .imp-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: var(--accent);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── Screen grid ─────────────────────────────────── */
+  .screens-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px;
+    max-width: 1400px;
+    margin: 0 auto 28px;
+  }
+
+  .screen-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+  }
+  .screen-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+  /* Highlight new screen */
+  .screen-card.new-screen {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light), var(--shadow);
+  }
+
+  .screen-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg);
+  }
+  .screen-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--accent);
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .screen-num.new { background: var(--warn); }
+  .screen-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .screen-url {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .screen-body {
+    padding: 10px;
+  }
+
+  /* ── Mock device shell ───────────────────────────── */
+  .device {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .device-bar {
+    background: var(--ink);
+    height: 6px;
+    opacity: 0.08;
+  }
+
+  /* ── Universal Status Bar ────────────────────────── */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: var(--ink);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+  }
+  .status-bar .icons { display: flex; gap: 6px; align-items: center; }
+
+  /* ── IMPROVED: Step Indicator ────────────────────── */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    background: #fff;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex: 1;
+    position: relative;
+  }
+  .step-dot {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    position: relative;
+    z-index: 1;
+  }
+  .step-dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .step-dot.done {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .step-label {
+    font-size: 8px;
+    color: var(--ink-muted);
+    font-family: 'Space Mono', monospace;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .step-label.active { color: var(--accent); font-weight: 700; }
+  .step-connector {
+    flex: 1;
+    height: 2px;
+    background: var(--border-light);
+    margin-top: -14px;
+  }
+  .step-connector.done { background: var(--accent); }
+
+  /* ── Component primitives ────────────────────────── */
+
+  /* IMPROVED: Primary CTA — dominant, large, with helper text */
+  .cta-block {
+    background: var(--ink);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+    margin-bottom: 6px;
+  }
+  .cta-block:hover { transform: scale(1.01); background: #2a2a26; }
+  .cta-block .cta-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  .cta-block .cta-text {
+    display: block;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+  .cta-block .cta-helper {
+    display: block;
+    color: rgba(255,255,255,0.65);
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 400;
+  }
+
+  .btn-primary {
+    display: block;
+    width: 100%;
+    background: var(--ink);
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+  .btn-secondary {
+    display: block;
+    width: 100%;
+    background: transparent;
+    color: var(--ink);
+    text-align: center;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid var(--border);
+    cursor: pointer;
+  }
+  .btn-accent {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* IMPROVED: GPS primary button */
+  .btn-gps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+
+  /* Text fallback input */
+  .text-fallback {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--ink-muted);
+    background: #fff;
+    cursor: text;
+    margin-bottom: 10px;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
+  }
+
+  /* ── Category grid — shown AFTER button click (screen 1b) ── */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .cat-item {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 6px;
+    text-align: center;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .cat-item:hover { border-color: var(--accent); background: var(--accent-light); }
+  .cat-item.selected { border-color: var(--accent); background: var(--accent-light); }
+  /* IMPROVED: larger icon + visible text label */
+  .cat-item .icon { font-size: 24px; display: block; margin-bottom: 5px; }
+  .cat-item .name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    display: block;
+    line-height: 1.2;
+  }
+
+  /* map placeholder */
+  .map-placeholder {
+    background: #e8f4e8;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--ink-soft);
+    font-size: 11px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0.7;
+  }
+  .map-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg, transparent, transparent 8px,
+      rgba(0,0,0,0.03) 8px, rgba(0,0,0,0.03) 16px
+    );
+  }
+  .map-optional-label {
+    font-size: 10px;
+    color: var(--ink-muted);
+    text-align: center;
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .map-icon { font-size: 24px; }
+
+  /* photo upload */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .upload-area:hover { border-color: var(--accent); }
+  .upload-area .cam { font-size: 26px; margin-bottom: 5px; }
+
+  /* progress bar */
+  .progress-wrap {
+    background: var(--border-light);
+    border-radius: 50px;
+    height: 12px;
+    overflow: hidden;
+    margin: 14px 0;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 50px;
+    transition: width 0.4s;
+  }
+
+  /* issue list items */
+  .issue-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .issue-item:last-child { border-bottom: none; }
+  .issue-icon {
+    width: 36px; height: 36px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .issue-info { flex: 1; }
+  .issue-title { font-size: 14px; font-weight: 600; }
+  .issue-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+
+  /* IMPROVED: "Confirm Issue" button replacing "Me Too" */
+  .confirm-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: var(--accent-light);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 7px 10px;
+    cursor: pointer;
+    min-width: 52px;
+    text-align: center;
+  }
+  .confirm-btn .cb-icon { font-size: 14px; }
+  .confirm-btn .cb-label { font-family: 'Space Mono', monospace; font-size: 8px; font-weight: 700; color: var(--accent); }
+  .confirm-btn .cb-count { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent); }
+
+  /* IMPROVED: upvote in community hub */
+  .upvote-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    min-width: 40px;
+  }
+  .upvote-btn .count { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; }
+  .upvote-btn .thumb { font-size: 14px; }
+
+  /* status tracker */
+  .status-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--bg);
+    border-radius: 8px;
+  }
+  .st-step {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    flex: 1;
+  }
+  .st-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: #fff;
+    position: relative;
+    z-index: 1;
+  }
+  .st-dot.done { background: var(--accent); border-color: var(--accent); }
+  .st-dot.active { background: #fff; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
+  .st-line { flex: 1; height: 2px; background: var(--border); margin-top: -12px; }
+  .st-label { font-size: 9px; color: var(--ink-soft); text-align: center; font-family: 'Space Mono', monospace; }
+
+  /* map pins */
+  .pins-overlay {
+    position: relative;
+    height: 130px;
+  }
+  .pin {
+    position: absolute;
+    font-size: 20px;
+    transform: translate(-50%, -100%);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+
+  /* info callout */
+  .callout {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: 10px;
+  }
+  .callout-warn {
+    background: var(--warn-light);
+    border-color: var(--warn);
+    color: var(--warn);
+  }
+
+  /* voice btn */
+  .voice-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    margin-top: 10px;
+    background: #fff;
+  }
+
+  /* IMPROVED: Success confirmation screen */
+  .success-screen {
+    padding: 20px 16px;
+    text-align: center;
+  }
+  .success-illustration {
+    width: 70px; height: 70px;
+    background: var(--success-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 14px;
+    border: 3px solid var(--success);
+  }
+  .success-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--success);
+    margin-bottom: 4px;
+  }
+  .success-subtitle {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .ref-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .whatsapp-notice {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #e7f8ee;
+    border: 1px solid #b2dfcc;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #1b7a3e;
+    text-align: left;
+    margin-bottom: 12px;
+  }
+  .btn-view-status {
+    display: block;
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    text-align: center;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Django route tags */
+  .django-info {
+    padding: 14px 18px;
+    border-top: 1px solid var(--border-light);
+    background: var(--bg);
+  }
+  .django-table { width: 100%; border-collapse: collapse; }
+  .django-table td {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 0;
+    vertical-align: top;
+  }
+  .django-table td:first-child { color: var(--ink-muted); width: 68px; }
+  .django-table td:last-child { color: var(--accent); word-break: break-all; }
+
+  /* ── Universal bars section ──────────────────────── */
+  .universal-section {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+  }
+  .universal-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 16px;
+  }
+  .universal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .universal-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .universal-card h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+  .universal-card p { font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* ── Flow diagram ────────────────────────────────── */
+  .flow-section {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+  }
+  .flow-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .flow-node {
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  .flow-node.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .flow-node.new { border-color: var(--warn); color: var(--warn); background: var(--warn-light); }
+  .flow-arrow {
+    color: var(--border);
+    font-size: 18px;
+    font-weight: 300;
+  }
+
+  /* ── Persona note ────────────────────────────────── */
+  .persona-strip {
+    max-width: 1400px;
+    margin: 0 auto 32px;
+    background: #fffbf0;
+    border: 1.5px solid #e8d88a;
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .persona-strip .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: #e8d88a;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .persona-strip p { font-size: 12px; color: var(--ink-soft); line-height: 1.6; }
+
+  /* offline indicator */
+  .offline-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    background: var(--warn-light);
+    color: var(--warn);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--warn);
+  }
+
+  /* ── UX improvement annotation ──────────────────── */
+  .ux-tag {
+    display: inline-block;
+    background: #fffbf0;
+    border: 1px solid #e8d88a;
+    color: #7a5c00;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Page Header ──────────────────────────────── -->
+<header class="page-header">
+  <div class="label">Django Wireframe Structure — UX Improved</div>
+  <h1>Local Community Service Delivery</h1>
+  <p style="font-size:13px;color:var(--ink-muted);margin-top:6px;">6 UX improvements applied · 6 screens (added Confirmation screen)</p>
+</header>
+
+<!-- ── Improvement Tags ──────────────────────────── -->
+<div class="improvement-strip">
+  <span class="imp-tag">✦ 1 Dominant CTA</span>
+  <span class="imp-tag">✦ Step Indicator</span>
+  <span class="imp-tag">✦ GPS-First Location</span>
+  <span class="imp-tag">✦ "Confirm Issue" replaces "Me Too"</span>
+  <span class="imp-tag">✦ Confirmation Screen + Ref ID</span>
+  <span class="imp-tag">✦ Accessible Labels & Font Sizes</span>
+</div>
+
+<!-- ── Persona Note ──────────────────────────────── -->
+<div class="persona-strip">
+  <span class="tag">PERSONA</span>
+  <p><strong>Mrs. Van Nuil</strong> — Low-literacy user. Interface prioritises large tap targets, visibility, and a single clear action. Step indicator reduces uncertainty. Voice-to-text enabled. GPS auto-location with text fallback. WhatsApp/push feedback loop with reference ID for trust.</p>
+</div>
+
+<!-- ── 6 Screens ─────────────────────────────────── -->
+<div class="screens-grid">
+
+  <!-- 1. Landing Screen — IMPROVED -->
+  <div class="screen-card">
+    <div class="screen-header">
+      <div class="screen-num">1</div>
+      <div class="screen-title">Landing Screen</div>
+      <div class="screen-url">views.home</div>
+    </div>
+    <div class="screen-body">
+      <div class="ux-tag">✦ Dominant CTA + helper text + categories after click</div>
+      <div class="device">
+        <div class="status-bar">
+          <span>CityMender</span>
+          <span class="icons">📶 🔋</span>
+        </div>
+        <div style="padding:16px;">
+          <div style="text-align:center;margin-bottom:16px;">
+            <div style="font-family:'Space Mono',monospace;font-size:15px;font-weight:700;line-height:1.3;color:var(--ink);">Local Community<br>Service Delivery</div>
+          </div>
+
+          <!-- IMPROVED: One dominant CTA block -->
+          <div class="cta-block">
+            <span class="cta-icon">🚨</span>
+            <span class="cta-text">Report a Problem</span>
+            <span class="cta-helper">Tap to report an issue in your area.</span>
+          </div>
+
+          <!-- IMPROVED: Categories shown AFTER button click (collapsed state) -->
+          <div style="text-align:center;margin:10px 0 8px;">
+            <span style="font-size:11px;color:var(--ink-muted);">↓ Categories appear after tap</span>
+          </div>
+          <div class="cat-grid" style="opacity:0.35;pointer-events:none;">
+            <div class="cat-item">
+              <span class="icon">💧</span>
+              <span class="name">Water Leak</span>
+            </div>
+            <div class="cat-item">
+              <span class="icon">⚡</span>
+              <span class="name">Electricity</span>
+            </div>
+            <div class="cat-item">
+              <span class="icon">🕳️</span>
+              <span class="name">Pothole</span>
+            </div>
+          </div>
+
+          <div class="voice-btn" style="font-size:14px;">🎤 Speak your issue</div>
+          <div class="callout">Single dominant action avoids choice paralysis. Categories reveal after tap. Helper text guides first-time users.</div>
+        </div>
+      </div>
+    </div>
+    <div class="django-info">
+      <table class="django-table">
+        <tr><td>URL</td><td>/</td></tr>
+        <tr><td>View</td><td>HomeView (TemplateView)</td></tr>
+        <tr><td>Template</td><td>home/landing.html</td></tr>
+        <tr><td>Model</td><td>IssueCategory</td></tr>
+        <tr><td>Context</td><td>categories, recent_issues</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 2. Location / Photo Screen — IMPROVED -->
+  <div class="screen-card">
+    <div class="screen-header">
+      <div class="screen-num">2</div>
+      <div class="screen-title">Location / Photo</div>
+      <div class="screen-url">views.report_location</div>
+    </div>
+    <div class="screen-body">
+      <div class="ux-tag">✦ Step indicator + GPS-first + text fallback + map optional</div>
+      <div class="device">
+        <div class="status-bar">
+          <span>← Report Issue</span>
+          <span class="icons">📍 🔋</span>
+        </div>
+
+        <!-- IMPROVED: Step Indicator -->
+        <div class="step-indicator">
+          <div class="step-item">
+            <div class="step-dot active">1</div>
+            <div class="step-label active">Location</div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item">
+            <div class="step-dot">2</div>
+            <div class="step-label">Details</div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item">
+            <div class="step-dot">3</div>
+            <div class="step-label">Submit</div>
+          </div>
+        </div>
+
+        <div style="padding:14px;">
+          <!-- IMPROVED: GPS as primary default action -->
+          <button class="btn-gps">📍 Use My Location</button>
+
+          <!-- IMPROVED: Text fallback -->
+          <div class="text-fallback">
+            <span>🔍</span>
+            <span>Enter street name instead…</span>
+          </div>
+
+          <!-- IMPROVED: Map is optional, secondary -->
+          <div class="map-optional-label">Optional — pin on map</div>
+          <div class="map-placeholder">
+            <span class="map-icon">🗺️</span>
+            <span>Tap to open map (optional)</span>
+          </div>
+
+          <div class="section-label" style="margin-top:12px;">Add Photo (Optional)</div>
+          <div class="upload-area">
+            <div class="cam">📷</div>
+            Take or upload photo
+          </div>
+          <div class="callout">GPS auto-fills location. Text fallback ensures accessibility for all users. Map is secondary, not required.</div>
+        </div>
+      </div>
+    </div>
+    <div class="django-info">
+      <table class="django-table">
+        <tr><td>URL</td><td>/report/location/</td></tr>
+        <tr><td>View</td><td>ReportLocationView (FormView)</td></tr>
+        <tr><td>Template</td><td>report/location.html</td></tr>
+        <tr><td>Model</td><td>IssueReport (lat, lng, photo)</td></tr>
+        <tr><td>Form</td><td>LocationPhotoForm</td></tr>
+        <tr><td>Storage</td><td>MEDIA_ROOT / S3</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. Submit Screen — IMPROVED -->
+  <div class="screen-card">
+    <div class="screen-header">
+      <div class="screen-num">3</div>
+      <div class="screen-title">Submit Screen</div>
+      <div class="screen-url">views.report_submit</div>
+    </div>
+    <div class="screen-body">
+      <div class="ux-tag">✦ Step indicator at step 3 + large accessible button</div>
+      <div class="device">
+        <div class="status-bar">
+          <span>← Confirm Report</span>
+          <span class="icons">📶 🔋</span>
+        </div>
+
+        <!-- IMPROVED: Step Indicator at step 3 -->
+        <div class="step-indicator">
+          <div class="step-item">
+            <div class="step-dot done">✓</div>
+            <div class="step-label">Location</div>
+          </div>
+          <div class="step-connector done"></div>
+          <div class="step-item">
+            <div class="step-dot done">✓</div>
+            <div class="step-label">Details</div>
+          </div>
+          <div class="step-connector done"></div>
+          <div class="step-item">
+            <div class="step-dot active">3</div>
+            <div class="step-label active">Submit</div>
+          </div>
+        </div>
+
+        <div style="padding:14px;">
+          <div class="section-label">Review & Submit</div>
+          <div style="background:var(--bg);border-radius:8px;padding:12px;font-size:13px;color:var(--ink-soft);margin-bottom:12px;line-height:1.6;">
+            <div>📍 <strong>12 Kgobudi St, Bloemfontein</strong></div>
+            <div style="margin-top:4px;">⚡ Electricity Fault — reported now</div>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-bar" style="width:90%"></div>
+          </div>
+          <div style="font-size:12px;color:var(--ink-muted);text-align:center;margin-bottom:12px;">Almost done! GPS coordinates attached.</div>
+          <!-- IMPROVED: Large, accessible submit button (min 16px, 700 weight) -->
+          <button class="btn-primary" style="font-size:17px;padding:17px;">✔ Submit Report</button>
+          <div class="callout" style="margin-top:10px;">Large tap target (min 48px). Clear confirmation of what will be submitted before pressing.</div>
+        </div>
+      </div>
+    </div>
+    <div class="django-info">
+      <table class="django-table">
+        <tr><td>URL</td><td>/report/submit/</td></tr>
+        <tr><td>View</td><td>ReportSubmitView (CreateView)</td></tr>
+        <tr><td>Template</td><td>report/submit.html</td></tr>
+        <tr><td>Model</td><td>IssueReport</td></tr>
+        <tr><td>Signal</td><td>post_save → notify_ward_officer</td></tr>
+        <tr><td>Task</td><td>Celery: send_confirmation_sms</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 4. Confirmation Screen — NEW -->
+  <div class="screen-card new-screen">
+    <div class="screen-header">
+      <div class="screen-num new">4</div>
+      <div class="screen-title">Confirmation ✦ NEW</div>
+      <div class="screen-url">views.report_done</div>
+    </div>
+    <div class="screen-body">
+      <div class="ux-tag">✦ New screen: reference ID + WhatsApp notice + View Status CTA</div>
+      <div class="device">
+        <div class="status-bar">
+          <span>CityMender</span>
+          <span class="icons">📶 🔋</span>
+        </div>
+        <div class="success-screen">
+          <!-- IMPROVED: Illustration (checkmark) -->
+          <div class="success-illustration">✅</div>
+          <div class="success-title">Report Sent Successfully!</div>
+          <div class="success-subtitle">Your issue has been logged and<br>assigned to a ward officer.</div>
+
+          <!-- IMPROVED: Reference ID -->
+          <div class="ref-badge">🔖 Reference ID: #12345</div>
+
+          <!-- IMPROVED: WhatsApp notification confirmation -->
+          <div class="whatsapp-notice">
+            <span style="font-size:18px;">💬</span>
+            <span>We will notify you via <strong>WhatsApp</strong> when your issue status changes.</span>
+          </div>
+
+          <!-- IMPROVED: View Status CTA -->
+          <button class="btn-view-status">📋 View Status</button>
+          <button class="btn-secondary" style="margin-top:8px;font-size:14px;">🏠 Back to Home</button>
+        </div>
+        <div class="callout" style="margin:0 14px 14px;">Reference ID builds trust. WhatsApp notice sets expectations. View Status keeps user engaged with the outcome.</div>
+      </div>
+    </div>
+    <div class="django-info">
+      <table class="django-table">
+        <tr><td>URL</td><td>/report/done/</td></tr>
+        <tr><td>View</td><td>ReportDoneView (TemplateView)</td></tr>
+        <tr><td>Template</td><td>report/done.html</td></tr>
+        <tr><td>Context</td><td>report_id, whatsapp_sent</td></tr>
+        <tr><td>Notify</td><td>Twilio WhatsApp / FCM push</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5. Existing Issue Map — IMPROVED -->
+  <div class="screen-card">
+    <div class="screen-header">
+      <div class="screen-num">5</div>
+      <div class="screen-title">Issue Map</div>
+      <div class="screen-url">views.issue_map</div>
+    </div>
+    <div class="screen-body">
+      <div class="ux-tag">✦ "Confirm Issue" replaces "Me Too" + labelled icons</div>
+      <div class="device">
+        <div class="status-bar">
+          <span>Community Map</span>
+          <span class="icons">🗺️ 🔋</span>
+        </div>
+        <div style="padding:14px;">
+          <div class="map-placeholder" style="height:140px;opacity:1;">
+            <div class="pins-overlay" style="position:absolute;inset:0;">
+              <span class="pin" style="top:55%;left:35%;">📍</span>
+              <span class="pin" style="top:40%;left:55%;">📍</span>
+              <span class="pin" style="top:65%;left:60%;">📍</span>
+              <span class="pin" style="top:30%;left:70%;">⚡</span>
+              <span class="pin" style="top:70%;left:25%;">💧</span>
+            </div>
+            <span style="position:relative;z-index:2;font-size:11px;margin-top:auto;padding:4px 8px;background:rgba(255,255,255,0.8);border-radius:4px;">Clustered issue map</span>
+          </div>
+
+          <!-- IMPROVED: "Confirm Issue" button + accessible labelling -->
+          <div style="background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:12px;margin-top:10px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:22px;">💧</span>
+            <div style="flex:1;">
+              <!-- IMPROVED: Accessible label under icon, plain language -->
+              <div style="font-size:14px;font-weight:600;">💧 Water Leak</div>
+              <div style="font-size:12px;color:var(--ink-soft);">4 people affected · 3 days</div>
+            </div>
+            <!-- IMPROVED: "Confirm Issue" with +1 label replaces "Me Too" -->
+            <div class="confirm-btn">
+              <span class="cb-icon">✋</span>
+              <span class="cb-label">+1 Issue</span>
+              <span class="cb-count">4</span>
+            </div>
+          </div>
+          <div style="background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:12px;margin-top:8px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:22px;">⚡</span>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:600;">⚡ Electricity Fault</div>
+              <div style="font-size:12px;color:var(--ink-soft);">7 people affected · 1 day</div>
+            </div>
+            <div class="confirm-btn">
+              <span class="cb-icon">✋</span>
+              <span class="cb-label">+1 Issue</span>
+              <span class="cb-count">7</span>
+            </div>
+          </div>
+          <div class="callout">"Confirm Issue" / "+1 Issue" is clearer than "Me Too". Plain language labels under icons help low-literacy users.</div>
+        </div>
+      </div>
+    </div>
+    <div class="django-info">
+      <table class="django-table">
+        <tr><td>URL</td><td>/map/</td></tr>
+        <tr><td>View</td><td>IssueMapView (ListView)</td></tr>
+        <tr><td>API</td><td>/api/issues/ (DRF GeoJSON)</td></tr>
+        <tr><td>Model</td><td>IssueReport, Verification</td></tr>
+        <tr><td>JS</td><td>Leaflet.markercluster</td></tr>
+        <tr><td>Action</td><td>POST /api/issues/{id}/verify/</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 6. Community Hub — IMPROVED -->
+  <div class="screen-card">
+    <div class="screen-header">
+      <div class="screen-num">6</div>
+      <div class="screen-title">Community Hub</div>
+      <div class="screen-url">views.community_hub</div>
+    </div>
+    <div class="screen-body">
+      <div class="ux-tag">✦ Accessible font sizes (14–16px) + labelled icons + "I Have This Problem"</div>
+      <div class="device">
+        <div class="status-bar">
+          <span>Community Hub</span>
+          <span class="icons">🔔 🔋</span>
+        </div>
+        <div style="padding:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <!-- IMPROVED: min 14px font throughout -->
+            <div class="section-label" style="margin:0;">Prioritised Issues</div>
+            <div style="font-size:11px;color:var(--ink-muted);">Most confirmed first</div>
+          </div>
+
+          <!-- IMPROVED: accessible font size, labelled icons, "I Have This Problem" -->
+          <div class="issue-item">
+            <div class="issue-icon" style="font-size:20px;">💧</div>
+            <div class="issue-info">
+              <!-- IMPROVED: plain label "Water Leak" not just icon -->
+              <div class="issue-title">💧 Water Leak</div>
+              <div class="issue-meta">14 people affected · 5 days</div>
+            </div>
+            <div class="confirm-btn">
+              <span class="cb-icon">✋</span>
+              <span class="cb-label">I Have This</span>
+              <span class="cb-count">6</span>
+            </div>
+          </div>
+          <div class="issue-item">
+            <div class="issue-icon" style="font-size:20px;">⚡</div>
+            <div class="issue-info">
+              <div class="issue-title">⚡ Electricity</div>
+              <div class="issue-meta">19 people affected · 2 days</div>
+            </div>
+            <div class="confirm-btn">
+              <span class="cb-icon">✋</span>
+              <span class="cb-label">I Have This</span>
+              <span class="cb-count">2</span>
+            </div>
+          </div>
+
+          <div class="section-label" style="margin-top:12px;">Status Update</div>
+          <div class="status-track">
+            <div class="st-step">
+              <div class="st-dot done"></div>
+              <div class="st-label">Logged</div>
+            </div>
+            <div class="st-line"></div>
+            <div class="st-step">
+              <div class="st-dot active"></div>
+              <div class="st-label">Dispatched</div>
+            </div>
+            <div class="st-line"></div>
+            <div class="st-step">
+              <div class="st-dot"></div>
+              <div class="st-label">Resolved</div>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-top:10px;">Min 14–16px fonts used throughout. Icon + text labels for screen readers and low-literacy users. WhatsApp push on status change.</div>
+        </div>
+      </div>
+    </div>
+    <div class="django-info">
+      <table class="django-table">
+        <tr><td>URL</td><td>/hub/</td></tr>
+        <tr><td>View</td><td>CommunityHubView (ListView)</td></tr>
+        <tr><td>Template</td><td>hub/community.html</td></tr>
+        <tr><td>Model</td><td>IssueReport, Vote, StatusLog</td></tr>
+        <tr><td>Order</td><td>annotate(vote_count) DESC</td></tr>
+        <tr><td>Notify</td><td>WhatsApp API / FCM push</td></tr>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /.screens-grid -->
+
+<!-- ── Universal Components ──────────────────────── -->
+<div class="universal-section">
+  <div class="universal-title">Universal Components (All Screens)</div>
+  <div class="universal-grid">
+
+    <div class="universal-card">
+      <h4>📶 Universal Status Bar</h4>
+      <p>Consistent navigation bar rendered in <code>base.html</code> via Django template inheritance. Shows app name, connectivity icon, and battery. Included on every screen via <code>{% block statusbar %}</code>.</p>
+    </div>
+
+    <div class="universal-card">
+      <h4>🎤 Voice-to-Text</h4>
+      <p>Web Speech API widget injected via <code>static/js/voice.js</code>. Fills form textarea with transcribed text. Supports isiZulu, Sesotho, English. Critical for low-literacy users like Mrs. Van Nuil.</p>
+    </div>
+
+    <div class="universal-card">
+      <h4>📴 Offline Mode Indicator</h4>
+      <div class="offline-badge" style="margin:8px 0 10px;">⚠ Offline — queued</div>
+      <p>Service Worker caches app shell. Pending reports stored in IndexedDB. Synced via Django REST API on reconnect. Addresses CityMenderSA evaluation requirement.</p>
+    </div>
+
+    <div class="universal-card">
+      <h4>🔔 Notification Loop</h4>
+      <p>Django Signals trigger Celery tasks on status change. Sends WhatsApp messages via Twilio API or Firebase Cloud Messaging push. Reference ID included in all notifications. Template: <code>notifications/status_update.txt</code>.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Django URL Flow ────────────────────────────── -->
+<div class="flow-section">
+  <div class="flow-title">Django URL Flow — urls.py (Updated)</div>
+  <div class="flow-row">
+    <div class="flow-node active">/</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">/report/location/</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">/report/submit/</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node new">/report/done/ ✦NEW</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node active">/map/</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">/map/verify/&lt;id&gt;/</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node active">/hub/</div>
+  </div>
+  <div class="flow-row" style="margin-top:14px;">
+    <div class="flow-node">/api/issues/</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">/api/issues/&lt;id&gt;/verify/</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">/api/issues/&lt;id&gt;/status/</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">/admin/</div>
+  </div>
+</div>
+
+</body>
+</html>
