@@ -1,0 +1,220 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Issue Map — CityMender SA{% endblock %}
+{% block nav_map %}active{% endblock %}
+{% block bnav_map %}active{% endblock %}
+{% block body_class %}page-map{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+{% endblock %}
+
+{% block content %}
+<!-- Map container (full-screen) -->
+<div class="map-page">
+
+  <!-- Filter bar -->
+  <div class="map-filters">
+    <button class="filter-chip filter-chip--active" data-filter="all">All</button>
+    <button class="filter-chip" data-filter="water">💧 Water</button>
+    <button class="filter-chip" data-filter="electricity">⚡ Electricity</button>
+    <button class="filter-chip" data-filter="roads">🛣 Roads</button>
+    <button class="filter-chip" data-filter="waste">🗑 Waste</button>
+  </div>
+
+  <!-- Leaflet map -->
+  <div id="issue-map"></div>
+
+  <!-- Issue list panel (bottom sheet) -->
+  <div class="map-panel" id="map-panel">
+    <div class="map-panel__handle"></div>
+    <div class="map-panel__header">
+      <span class="map-panel__title">Nearby Issues</span>
+      <span class="map-panel__count" id="issue-count">{{ featured_issues|length }}</span>
+    </div>
+    <div class="map-panel__list" id="issue-list">
+      {% for issue in featured_issues %}
+      <div class="map-issue-item" data-id="{{ issue.pk }}"
+           data-lat="{{ issue.latitude|default:'' }}"
+           data-lng="{{ issue.longitude|default:'' }}">
+        <div class="map-issue-item__icon">{{ issue.category_icon }}</div>
+        <div class="map-issue-item__body">
+          <div class="map-issue-item__title">{{ issue.category_label }}</div>
+          <div class="map-issue-item__meta">
+            {{ issue.vote_count }} affected
+            {% if issue.days_open > 0 %} · {{ issue.days_open }} day{{ issue.days_open|pluralize }}{% endif %}
+            {% if issue.address_text %} · {{ issue.address_text|truncatechars:30 }}{% endif %}
+          </div>
+        </div>
+        <button class="confirm-btn js-verify"
+                data-id="{{ issue.pk }}"
+                data-count="{{ issue.vote_count }}"
+                aria-label="Confirm this issue">
+          <span class="cb-icon">✋</span>
+          <span class="cb-label">+1 Issue</span>
+          <span class="cb-count">{{ issue.vote_count }}</span>
+        </button>
+      </div>
+      {% empty %}
+      <div class="map-empty">No issues reported yet. <a href="{% url 'report:home' %}">Report one!</a></div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Issue popup template (hidden) -->
+<template id="popup-tpl">
+  <div class="map-popup">
+    <div class="map-popup__header">
+      <span class="popup-icon"></span>
+      <strong class="popup-title"></strong>
+    </div>
+    <div class="popup-meta"></div>
+    <button class="popup-verify confirm-btn js-verify">
+      <span class="cb-icon">✋</span>
+      <span class="cb-label">+1 Issue</span>
+      <span class="cb-count"></span>
+    </button>
+  </div>
+</template>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+(function() {
+  const GEOJSON = {{ issues_geojson|safe }};
+  const CSRF = '{{ csrf_token }}';
+
+  // Init map centred on South Africa
+  const map = L.map('issue-map', {
+    center: [-29.0, 26.0],
+    zoom: 6,
+    zoomControl: true,
+  });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19,
+  }).addTo(map);
+
+  // Marker cluster group
+  const markers = L.markerClusterGroup({ maxClusterRadius: 50 });
+
+  // Custom icon factory
+  function issueIcon(emoji) {
+    return L.divIcon({
+      html: `<div class="custom-marker">${emoji}</div>`,
+      className: '',
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      popupAnchor: [0, -36],
+    });
+  }
+
+  // Build popup HTML
+  function buildPopup(props) {
+    return `
+      <div class="map-popup">
+        <div class="map-popup__header">
+          <span>${props.icon}</span>
+          <strong>${props.category_label || props.category}</strong>
+        </div>
+        <div class="popup-meta">${props.vote_count} confirmed · ${props.days_open}d open</div>
+        ${props.address_text ? `<div class="popup-address">📍 ${props.address_text}</div>` : ''}
+        <button class="popup-verify-btn js-verify-popup"
+                data-id="${props.id}" data-count="${props.vote_count}">
+          ✋ Confirm this issue (${props.vote_count})
+        </button>
+      </div>`;
+  }
+
+  let allMarkers = [];
+
+  function loadMarkers(filterCat) {
+    markers.clearLayers();
+    allMarkers = [];
+
+    GEOJSON.features.forEach(f => {
+      const p = f.properties;
+      if (filterCat !== 'all' && p.category !== filterCat) return;
+      const [lng, lat] = f.geometry.coordinates;
+      const m = L.marker([lat, lng], { icon: issueIcon(p.icon) });
+      m.bindPopup(buildPopup(p), { maxWidth: 260 });
+      m.on('popupopen', () => {
+        document.querySelectorAll('.js-verify-popup').forEach(btn => {
+          btn.addEventListener('click', () => verifyIssue(btn.dataset.id, btn));
+        });
+      });
+      markers.addLayer(m);
+      allMarkers.push({ lat, lng, props: p });
+    });
+
+    map.addLayer(markers);
+
+    // Auto-fit if markers exist
+    if (allMarkers.length > 0 && filterCat === 'all') {
+      try { map.fitBounds(markers.getBounds().pad(0.15)); } catch(e) {}
+    }
+  }
+
+  loadMarkers('all');
+
+  // Filter chips
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('filter-chip--active'));
+      chip.classList.add('filter-chip--active');
+      loadMarkers(chip.dataset.filter);
+    });
+  });
+
+  // Issue list: click to fly to
+  document.querySelectorAll('.map-issue-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('.confirm-btn')) return;
+      const lat = parseFloat(item.dataset.lat);
+      const lng = parseFloat(item.dataset.lng);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        map.flyTo([lat, lng], 16, { duration: 1 });
+      }
+    });
+  });
+
+  // Verify / confirm issue
+  async function verifyIssue(id, btn) {
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/issues/${id}/verify/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      const count = data.vote_count;
+      // Update all buttons for this ID
+      document.querySelectorAll(`[data-id="${id}"] .cb-count`).forEach(el => el.textContent = count);
+      btn.classList.toggle('confirm-btn--active', data.status === 'confirmed');
+    } catch(e) { console.error(e); }
+    btn.disabled = false;
+  }
+
+  // Wire up list verify buttons
+  document.querySelectorAll('.js-verify').forEach(btn => {
+    btn.addEventListener('click', () => verifyIssue(btn.dataset.id, btn));
+  });
+
+  // Try to locate user
+  map.locate({ setView: false, maxZoom: 14 });
+  map.on('locationfound', (e) => {
+    L.circleMarker(e.latlng, {
+      radius: 10, color: '#2d6a4f', fillColor: '#2d6a4f', fillOpacity: 0.3,
+    }).addTo(map).bindPopup('You are here').openPopup();
+  });
+})();
+</script>
+{% endblock %}

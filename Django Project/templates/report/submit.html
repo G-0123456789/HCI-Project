@@ -1,0 +1,187 @@
+{% extends "base/base.html" %}
+{% load static dict_filters %}
+
+{% block title %}Report Details — CityMender SA{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block bnav_home %}active{% endblock %}
+
+{% block step_indicator %}
+<div class="step-bar">
+  <div class="step-bar__item step-bar__item--done">
+    <div class="step-dot step-dot--done">✓</div>
+    <div class="step-label">Category</div>
+  </div>
+  <div class="step-bar__line step-bar__line--done"></div>
+  <div class="step-bar__item step-bar__item--done">
+    <div class="step-dot step-dot--done">✓</div>
+    <div class="step-label">Location</div>
+  </div>
+  <div class="step-bar__line step-bar__line--done"></div>
+  <div class="step-bar__item step-bar__item--active">
+    <div class="step-dot step-dot--active">3</div>
+    <div class="step-label step-label--active">Details</div>
+  </div>
+  <div class="step-bar__line"></div>
+  <div class="step-bar__item">
+    <div class="step-dot">4</div>
+    <div class="step-label">Done</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-page__header">
+    <h1 class="form-page__title">Describe the Issue</h1>
+    {% if address %}
+    <div class="location-pill">📍 {{ address|truncatechars:50 }}</div>
+    {% endif %}
+  </div>
+
+  <form method="post" enctype="multipart/form-data" id="report-form" novalidate>
+    {% csrf_token %}
+
+    <!-- Category selector -->
+    <div class="form-group">
+      <label class="form-label">Issue Type</label>
+      <div class="cat-chips">
+        {% for value, label in categories %}
+        <label class="cat-chip {% if form.category.value == value %}cat-chip--selected{% endif %}">
+          <input type="radio" name="category" value="{{ value }}"
+                 {% if form.category.value == value %}checked{% endif %}>
+          <span class="cat-chip__icon">{{ category_icons|dict_get:value }}</span>
+          <span class="cat-chip__name">{{ label|slice:"2:" }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      {% if form.category.errors %}
+        <div class="field-error">{{ form.category.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label class="form-label" for="description-field">
+        Description
+        <span class="label-hint">Tell us what you see</span>
+      </label>
+      <textarea
+        name="description"
+        id="description-field"
+        class="form-textarea"
+        placeholder="Describe the issue in detail…"
+        rows="4"
+      >{{ form.description.value|default:'' }}</textarea>
+
+      <!-- Voice-to-text button -->
+      <button type="button" class="voice-btn" id="voice-btn" aria-label="Record voice description">
+        <span class="voice-btn__icon" id="voice-icon">🎤</span>
+        <span id="voice-label">Speak your description</span>
+      </button>
+      <div id="voice-status" class="voice-status" hidden></div>
+    </div>
+
+    <!-- Photo upload -->
+    <div class="form-group">
+      <label class="form-label">Add Photo <span class="label-hint">Optional</span></label>
+      <label class="upload-area" for="id_photo" id="upload-label">
+        <span class="upload-area__icon" id="upload-icon">📷</span>
+        <span id="upload-text">Take a photo or choose from gallery</span>
+        <input type="file" name="photo" id="id_photo"
+               accept="image/*" capture="environment"
+               class="sr-only" onchange="previewPhoto(this)">
+      </label>
+      <div id="photo-preview" class="photo-preview" hidden>
+        <img id="photo-img" src="" alt="Preview">
+        <button type="button" class="photo-remove" onclick="removePhoto()">✕ Remove</button>
+      </div>
+    </div>
+
+    <!-- Reporter info (optional) -->
+    <details class="optional-section">
+      <summary class="optional-section__toggle">
+        🔔 Get WhatsApp updates (optional)
+      </summary>
+      <div class="optional-section__body">
+        <div class="form-group">
+          <label class="form-label" for="id_reporter_name">Your Name</label>
+          <input type="text" name="reporter_name" id="id_reporter_name"
+                 class="form-input"
+                 placeholder="e.g. Thabo Nkosi"
+                 value="{{ form.reporter_name.value|default:'' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="id_reporter_phone">WhatsApp Number</label>
+          <input type="tel" name="reporter_phone" id="id_reporter_phone"
+                 class="form-input"
+                 placeholder="+27 71 000 0000"
+                 value="{{ form.reporter_phone.value|default:'' }}">
+          <span class="field-hint">We'll send you status updates via WhatsApp</span>
+        </div>
+      </div>
+    </details>
+
+    {% if form.non_field_errors %}
+    <div class="form-error-banner">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <!-- Progress indicator during submit -->
+    <div id="submit-progress" class="submit-progress" hidden>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+      </div>
+      <span class="progress-label">Submitting your report…</span>
+    </div>
+
+    <button type="submit" class="btn-primary" id="submit-btn">
+      Submit Report →
+    </button>
+    <a href="{% url 'report:location' %}" class="btn-ghost">← Back</a>
+  </form>
+</div>
+
+<script>
+// Photo preview
+function previewPhoto(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('photo-img').src = e.target.result;
+      document.getElementById('photo-preview').hidden = false;
+      document.getElementById('upload-label').style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function removePhoto() {
+  document.getElementById('id_photo').value = '';
+  document.getElementById('photo-preview').hidden = true;
+  document.getElementById('upload-label').style.display = '';
+}
+
+// Category chip selection
+document.querySelectorAll('.cat-chip input').forEach(input => {
+  input.addEventListener('change', () => {
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('cat-chip--selected'));
+    input.closest('.cat-chip').classList.add('cat-chip--selected');
+  });
+});
+
+// Submit progress animation
+document.getElementById('report-form').addEventListener('submit', function() {
+  const btn = document.getElementById('submit-btn');
+  const progress = document.getElementById('submit-progress');
+  const fill = document.getElementById('progress-fill');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+  progress.hidden = false;
+  let w = 0;
+  const iv = setInterval(() => {
+    w = Math.min(w + Math.random() * 15, 90);
+    fill.style.width = w + '%';
+    if (w >= 90) clearInterval(iv);
+  }, 200);
+});
+</script>
+{% endblock %}

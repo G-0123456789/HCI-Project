@@ -1,0 +1,152 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Report Submitted — CityMender SA{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block bnav_home %}active{% endblock %}
+
+{% block step_indicator %}
+<div class="step-bar">
+  <div class="step-bar__item step-bar__item--done">
+    <div class="step-dot step-dot--done">✓</div>
+    <div class="step-label">Category</div>
+  </div>
+  <div class="step-bar__line step-bar__line--done"></div>
+  <div class="step-bar__item step-bar__item--done">
+    <div class="step-dot step-dot--done">✓</div>
+    <div class="step-label">Location</div>
+  </div>
+  <div class="step-bar__line step-bar__line--done"></div>
+  <div class="step-bar__item step-bar__item--done">
+    <div class="step-dot step-dot--done">✓</div>
+    <div class="step-label">Details</div>
+  </div>
+  <div class="step-bar__line step-bar__line--done"></div>
+  <div class="step-bar__item step-bar__item--active">
+    <div class="step-dot step-dot--done">✓</div>
+    <div class="step-label step-label--active">Done</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="done-page">
+
+  <!-- Success illustration -->
+  <div class="success-illustration">
+    <span class="success-illustration__icon">✅</span>
+  </div>
+
+  <h1 class="success-title">Report Submitted!</h1>
+  <p class="success-subtitle">
+    Thank you. Your report has been logged and will be reviewed by the municipality.
+  </p>
+
+  <!-- Reference ID badge -->
+  <div class="ref-badge">
+    <span class="ref-badge__label">Reference ID</span>
+    <span class="ref-badge__id">{{ report.ref_id }}</span>
+    <button class="ref-badge__copy" onclick="copyRef('{{ report.ref_id }}')" title="Copy reference ID">
+      📋
+    </button>
+  </div>
+  <div id="copy-confirm" class="copy-confirm" hidden>Copied!</div>
+
+  <!-- Issue summary -->
+  <div class="done-summary">
+    <div class="done-summary__row">
+      <span class="done-summary__icon">{{ report.category_icon }}</span>
+      <div>
+        <div class="done-summary__label">Issue Type</div>
+        <div class="done-summary__value">{{ report.category_label }}</div>
+      </div>
+    </div>
+    {% if report.address_text %}
+    <div class="done-summary__row">
+      <span class="done-summary__icon">📍</span>
+      <div>
+        <div class="done-summary__label">Location</div>
+        <div class="done-summary__value">{{ report.address_text }}</div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="done-summary__row">
+      <span class="done-summary__icon">📊</span>
+      <div>
+        <div class="done-summary__label">Status</div>
+        <div class="done-summary__value">
+          <span class="status-pill status-pill--logged">Logged</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WhatsApp notice -->
+  {% if report.reporter_phone %}
+  <div class="whatsapp-notice">
+    <span class="whatsapp-notice__icon">💬</span>
+    <div>
+      <strong>WhatsApp updates enabled</strong><br>
+      We'll send status updates to {{ report.reporter_phone }}.
+      {% if whatsapp_sent %}Confirmation sent!{% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="whatsapp-notice whatsapp-notice--info">
+    <span class="whatsapp-notice__icon">💡</span>
+    <div>
+      <strong>Tip:</strong> Add your WhatsApp number next time to receive status updates automatically.
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Status tracker -->
+  <div class="status-track-card">
+    <div class="status-track-label">Track Progress</div>
+    <div class="status-track">
+      <div class="st-step">
+        <div class="st-dot st-dot--done"></div>
+        <div class="st-label">Logged</div>
+      </div>
+      <div class="st-line"></div>
+      <div class="st-step">
+        <div class="st-dot"></div>
+        <div class="st-label">Dispatched</div>
+      </div>
+      <div class="st-line"></div>
+      <div class="st-step">
+        <div class="st-dot"></div>
+        <div class="st-label">Resolved</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTAs -->
+  <a href="{% url 'hub:community' %}" class="btn-primary">📋 View Status in Community Hub</a>
+  <a href="{% url 'report:map' %}" class="btn-secondary" style="margin-top:10px;">🗺 See Issue on Map</a>
+  <a href="{% url 'report:home' %}" class="btn-ghost" style="margin-top:10px;">🏠 Back to Home</a>
+
+</div>
+
+<script>
+function copyRef(id) {
+  navigator.clipboard.writeText(id).then(() => {
+    const el = document.getElementById('copy-confirm');
+    el.hidden = false;
+    setTimeout(() => { el.hidden = true; }, 2000);
+  });
+}
+// Confetti-style celebration
+window.addEventListener('load', () => {
+  const emojis = ['✅','🎉','🏘','📋','⭐'];
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('span');
+    el.className = 'confetti-piece';
+    el.textContent = emojis[i % emojis.length];
+    el.style.cssText = `left:${Math.random()*100}%;animation-delay:${Math.random()*1}s;font-size:${14+Math.random()*10}px`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+});
+</script>
+{% endblock %}

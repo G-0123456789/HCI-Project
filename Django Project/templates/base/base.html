@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#1a1a18">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>{% block title %}CityMender SA{% endblock %}</title>
+  {% load static %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+  <!-- Offline Banner -->
+  <div id="offline-banner" class="offline-banner" hidden>
+    <span>⚠</span> Offline — report will be sent when you reconnect
+  </div>
+
+  <!-- App Shell Header -->
+  <header class="app-header">
+    <div class="app-header__inner">
+      <a href="{% url 'report:home' %}" class="app-logo">
+        <span class="app-logo__icon">🏘</span>
+        <span class="app-logo__text">CityMender<span>SA</span></span>
+      </a>
+      <nav class="app-nav">
+        <a href="{% url 'report:home' %}" class="app-nav__link {% block nav_home %}{% endblock %}">
+          <span class="nav-icon">🏠</span><span class="nav-label">Report</span>
+        </a>
+        <a href="{% url 'report:map' %}" class="app-nav__link {% block nav_map %}{% endblock %}">
+          <span class="nav-icon">🗺</span><span class="nav-label">Map</span>
+        </a>
+        <a href="{% url 'hub:community' %}" class="app-nav__link {% block nav_hub %}{% endblock %}">
+          <span class="nav-icon">👥</span><span class="nav-label">Hub</span>
+        </a>
+      </nav>
+      <div class="app-header__status">
+        <span id="connectivity-icon" title="Online">📶</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Step indicator (optional, injected by child templates) -->
+  {% block step_indicator %}{% endblock %}
+
+  <!-- Main content -->
+  <main class="main-content">
+    {% if messages %}
+      <div class="messages-container">
+        {% for message in messages %}
+          <div class="message message--{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Bottom nav (mobile) -->
+  <nav class="bottom-nav">
+    <a href="{% url 'report:home' %}" class="bottom-nav__item {% block bnav_home %}{% endblock %}">
+      <span class="bn-icon">🏠</span>
+      <span class="bn-label">Report</span>
+    </a>
+    <a href="{% url 'report:map' %}" class="bottom-nav__item {% block bnav_map %}{% endblock %}">
+      <span class="bn-icon">🗺</span>
+      <span class="bn-label">Map</span>
+    </a>
+    <a href="{% url 'hub:community' %}" class="bottom-nav__item {% block bnav_hub %}{% endblock %}">
+      <span class="bn-icon">👥</span>
+      <span class="bn-label">Hub</span>
+    </a>
+  </nav>
+
+  <script src="{% static 'js/offline.js' %}" defer></script>
+  <script src="{% static 'js/voice.js' %}" defer></script>
+  <script src="{% static 'js/app.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

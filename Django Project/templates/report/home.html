@@ -1,0 +1,79 @@
+{% extends "base/base.html" %}
+{% load static dict_filters %}
+
+{% block title %}Report an Issue — CityMender SA{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block bnav_home %}active{% endblock %}
+{% block body_class %}page-home{% endblock %}
+
+{% block content %}
+<div class="home-wrap">
+
+  <!-- Hero CTA -->
+  <section class="hero">
+    <div class="hero__eyebrow">Community Service Delivery</div>
+    <h1 class="hero__title">Report a local issue,<br>track it to resolution.</h1>
+    <p class="hero__sub">
+      Water, electricity, roads &amp; more — logged, mapped, and followed up.
+    </p>
+
+    {% if recent_count %}
+    <div class="hero__stats">
+      <span class="stat-pill">📋 {{ recent_count }} active issue{{ recent_count|pluralize }}</span>
+    </div>
+    {% endif %}
+
+    <button class="cta-primary" id="open-report-btn" aria-expanded="false">
+      <span class="cta-primary__icon">📍</span>
+      <span class="cta-primary__text">Report an Issue</span>
+      <span class="cta-primary__helper">Tap to choose what to report</span>
+    </button>
+  </section>
+
+  <!-- Category grid (revealed on CTA tap) -->
+  <section class="cat-section" id="cat-section" hidden>
+    <div class="cat-section__label">What type of issue?</div>
+    <div class="cat-grid">
+      {% for value, label in categories %}
+      <a href="{% url 'report:location' %}?category={{ value }}"
+         class="cat-item" data-category="{{ value }}">
+        <span class="cat-item__icon">{{ category_icons|dict_get:value }}</span>
+        <span class="cat-item__name">{{ label|slice:"2:" }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Secondary actions -->
+  <section class="home-secondary">
+    <a href="{% url 'report:map' %}" class="secondary-card">
+      <span class="secondary-card__icon">🗺</span>
+      <div>
+        <div class="secondary-card__title">View Issue Map</div>
+        <div class="secondary-card__sub">See all reported issues near you</div>
+      </div>
+      <span class="secondary-card__arrow">›</span>
+    </a>
+    <a href="{% url 'hub:community' %}" class="secondary-card">
+      <span class="secondary-card__icon">👥</span>
+      <div>
+        <div class="secondary-card__title">Community Hub</div>
+        <div class="secondary-card__sub">Confirm issues, track progress</div>
+      </div>
+      <span class="secondary-card__arrow">›</span>
+    </a>
+  </section>
+
+</div>
+
+<script>
+  const btn = document.getElementById('open-report-btn');
+  const section = document.getElementById('cat-section');
+  btn.addEventListener('click', () => {
+    const open = section.hidden === false;
+    section.hidden = open;
+    btn.setAttribute('aria-expanded', String(!open));
+    if (!open) section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+</script>
+{% endblock %}

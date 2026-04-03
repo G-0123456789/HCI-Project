@@ -1,0 +1,145 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}Community Hub — CityMender SA{% endblock %}
+{% block nav_hub %}active{% endblock %}
+{% block bnav_hub %}active{% endblock %}
+
+{% block content %}
+<div class="hub-page">
+
+  <div class="hub-header">
+    <h1 class="hub-header__title">Community Hub</h1>
+    <p class="hub-header__sub">Issues ranked by community confirmation · Most urgent first</p>
+  </div>
+
+  <!-- Active Issues -->
+  <section class="hub-section">
+    <div class="hub-section__label">
+      <span>Active Issues</span>
+      <span class="hub-section__count">{{ active_issues|length }}</span>
+    </div>
+
+    {% if active_issues %}
+      {% for issue in active_issues %}
+      <div class="hub-issue-card" id="issue-{{ issue.pk }}">
+        <div class="hub-issue-card__top">
+          <div class="hub-issue-card__icon">{{ issue.category_icon }}</div>
+          <div class="hub-issue-card__body">
+            <div class="hub-issue-card__title">{{ issue.category_icon }} {{ issue.category_label }}</div>
+            <div class="hub-issue-card__meta">
+              {{ issue.vote_count }} confirmed
+              {% if issue.days_open > 0 %} · {{ issue.days_open }} day{{ issue.days_open|pluralize }} open{% endif %}
+              {% if issue.address_text %} · {{ issue.address_text|truncatechars:35 }}{% endif %}
+            </div>
+          </div>
+          <button class="confirm-btn js-verify"
+                  data-id="{{ issue.pk }}"
+                  data-count="{{ issue.vote_count }}"
+                  aria-label="Confirm I have this problem">
+            <span class="cb-icon">✋</span>
+            <span class="cb-label">I Have This</span>
+            <span class="cb-count">{{ issue.vote_count }}</span>
+          </button>
+        </div>
+
+        {% if issue.description %}
+        <div class="hub-issue-card__desc">{{ issue.description|truncatechars:120 }}</div>
+        {% endif %}
+
+        <!-- Status tracker -->
+        <div class="status-track">
+          <div class="st-step">
+            <div class="st-dot {% if issue.status_step >= 1 %}st-dot--done{% endif %}
+                        {% if issue.status == 'logged' %}st-dot--active{% endif %}"></div>
+            <div class="st-label">Logged</div>
+          </div>
+          <div class="st-line {% if issue.status_step >= 2 %}st-line--done{% endif %}"></div>
+          <div class="st-step">
+            <div class="st-dot {% if issue.status_step >= 2 %}st-dot--done{% endif %}
+                        {% if issue.status == 'dispatched' %}st-dot--active{% endif %}"></div>
+            <div class="st-label">Dispatched</div>
+          </div>
+          <div class="st-line {% if issue.status_step >= 3 %}st-line--done{% endif %}"></div>
+          <div class="st-step">
+            <div class="st-dot {% if issue.status_step >= 3 %}st-dot--done{% endif %}"></div>
+            <div class="st-label">Resolved</div>
+          </div>
+        </div>
+
+        <div class="hub-issue-card__footer">
+          <span class="status-pill status-pill--{{ issue.status }}">{{ issue.get_status_display }}</span>
+          <span class="hub-issue-card__ref">{{ issue.ref_id }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="hub-empty">
+        <span class="hub-empty__icon">🎉</span>
+        <p>No active issues right now!</p>
+        <a href="{% url 'report:home' %}" class="btn-primary" style="margin-top:12px;">Report an Issue</a>
+      </div>
+    {% endif %}
+  </section>
+
+  <!-- Resolved Issues -->
+  {% if resolved_issues %}
+  <section class="hub-section" style="margin-top:32px;">
+    <div class="hub-section__label">
+      <span>Recently Resolved</span>
+      <span class="hub-section__count hub-section__count--green">{{ resolved_issues|length }}</span>
+    </div>
+    {% for issue in resolved_issues %}
+    <div class="hub-issue-card hub-issue-card--resolved">
+      <div class="hub-issue-card__top">
+        <div class="hub-issue-card__icon">{{ issue.category_icon }}</div>
+        <div class="hub-issue-card__body">
+          <div class="hub-issue-card__title">{{ issue.category_icon }} {{ issue.category_label }}</div>
+          <div class="hub-issue-card__meta">
+            {{ issue.vote_count }} confirmed · {{ issue.days_open }} day{{ issue.days_open|pluralize }}
+          </div>
+        </div>
+        <span class="status-pill status-pill--resolved">✓ Resolved</span>
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <!-- FAB: report new issue -->
+  <a href="{% url 'report:home' %}" class="fab" aria-label="Report new issue">
+    <span>+</span>
+  </a>
+
+</div>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+
+async function verifyIssue(id, btn) {
+  btn.disabled = true;
+  try {
+    const res = await fetch(`/api/issues/${id}/verify/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    const count = data.vote_count;
+    document.querySelectorAll(`[data-id="${id}"] .cb-count, #issue-${id} .cb-count`)
+      .forEach(el => el.textContent = count);
+
+    // Visual feedback
+    const card = document.getElementById(`issue-${id}`);
+    if (card) {
+      card.classList.add('hub-issue-card--confirmed');
+      setTimeout(() => card.classList.remove('hub-issue-card--confirmed'), 1200);
+    }
+  } catch(e) { console.error(e); }
+  btn.disabled = false;
+}
+
+document.querySelectorAll('.js-verify').forEach(btn => {
+  btn.addEventListener('click', () => verifyIssue(btn.dataset.id, btn));
+});
+</script>
+{% endblock %}
